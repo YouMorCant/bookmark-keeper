@@ -35,6 +35,9 @@ function validateURL(nameValue,urlValue){
 
 // Populates DOM with bookmarks in local storage
 function buildBookmarks() {
+    //remove all bookmarks on screen
+    bookmarksContainer.textContent = '';
+
     bookmarks.forEach((bookmark) => {
        const { name, url } = bookmark;
 
@@ -84,6 +87,20 @@ function fetchBookmarks() {
     buildBookmarks();
 }
 
+// Deletes a bookmark
+function deleteBookmark(url){
+    // Search through bookmarks array for the url
+    bookmarks.forEach((bookmark, i) => {
+        // Goes through objects by i if the url matches then splice(i, 1) removes one item at point i
+        if (bookmark.url === url) {
+            bookmarks.splice(i,1);
+            console.log(JSON.stringify(bookmarks));
+        }
+    });
+    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+    fetchBookmarks();
+}
+
 // Store Bookmark
 function storeBookmark(e) {
     e.preventDefault();
@@ -98,11 +115,21 @@ function storeBookmark(e) {
         return false;
     }
 
+    // Check if bookmark already exist in array
+    bookmarks.forEach((bookmark, i) => {
+        if (bookmark.url === urlValue) {
+            alert("Please enter a new url");
+            return false;
+        }
+    });
+    
+
     // Creates new bookmark object
     const bookmark = {
         name: nameValue,
         url: urlValue,
     };
+
     // add bookmark to bookmarks array
     bookmarks.push(bookmark);
 
