@@ -7,7 +7,7 @@ const websiteNameEl = document.getElementById('website-name');
 const websiteURLEl = document.getElementById('website-url');
 const bookmarksContainer = document.getElementById('bookmark-container');
 
-let bookmarks = [];
+let bookmarks = {};
 
 // Show Modal, focus on Input
 function showModal() {
@@ -36,10 +36,10 @@ function validateURL(nameValue,urlValue){
 // Populates DOM with bookmarks in local storage
 function buildBookmarks() {
     //remove all bookmarks on screen
-    bookmarksContainer.textContent = '';
+    bookmarksContainer.innerText = '';
 
-    bookmarks.forEach((bookmark) => {
-       const { name, url } = bookmark;
+    Object.keys(bookmarks).forEach((id) => {
+       const { name, url } = bookmarks[id];
 
         // Item Div
         const item = document.createElement('div');
@@ -48,7 +48,7 @@ function buildBookmarks() {
         const closeIcon = document.createElement('i');
         closeIcon.classList.add('fas','fa-times');
         closeIcon.setAttribute('title', 'Delete Bookmark');
-        closeIcon.setAttribute('onclick',`deleteBookmark('${url}')`);
+        closeIcon.setAttribute('onclick',`deleteBookmark('${id}')`);
         // Favicon/link container
         const linkInfo = document.createElement('div');
         linkInfo.classList.add('name');
@@ -74,29 +74,26 @@ function fetchBookmarks() {
     if (localStorage.getItem('bookmarks')){
         bookmarks = JSON.parse(localStorage.getItem('bookmarks'));
     }else{
-        // Create bookmarks array
-        bookmarks = [
+        // Create bookmarks object in localStorage
+        const id = `http://youmorcant.github.io/light-and-dark/`
+        bookmarks[id] = 
             {
-                name: 'Light/Dark Mode',
-                url: 'https://youmorcant.github.io/light-dark-mode/',
+                name: 'Quote Generator',
+                url: 'https://youmorcant.github.io/quoteGenerator/',
 
             }
-        ];
+
         localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
     }
     buildBookmarks();
 }
 
 // Deletes a bookmark
-function deleteBookmark(url){
+function deleteBookmark(id){
     // Search through bookmarks array for the url
-    bookmarks.forEach((bookmark, i) => {
-        // Goes through objects by i if the url matches then splice(i, 1) removes one item at point i
-        if (bookmark.url === url) {
-            bookmarks.splice(i,1);
-            console.log(JSON.stringify(bookmarks));
-        }
-    });
+    if (bookmarks[id]) {
+        delete bookmarks[id]
+    }
 
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
     fetchBookmarks();
@@ -115,14 +112,6 @@ function storeBookmark(e) {
     if (!validateURL(nameValue,urlValue)){
         return false;
     }
-
-    // Check if bookmark already exist in array
-    bookmarks.forEach((bookmark, i) => {
-        if (bookmark.url === urlValue) {
-            alert("Please enter a new url");
-            return false;
-        }
-    });
     
 
     // Creates new bookmark object
@@ -131,8 +120,8 @@ function storeBookmark(e) {
         url: urlValue,
     };
 
-    // add bookmark to bookmarks array
-    bookmarks.push(bookmark);
+    // add bookmark to bookmarks
+    bookmarks[urlValue] = bookmark;
 
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
 
